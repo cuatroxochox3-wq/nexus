@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Veloce Auto Spa & Detailing | Sistema de Gestión y Fidelización{% endblock %}</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome para Iconografía Moderna -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Estilos Principales -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Barra de Navegación -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="{{ url_for('index') }}" class="brand-logo">
+        <div class="brand-icon">
+          <i class="fa-solid fa-car-sparkle"></i>
+        </div>
+        <div class="brand-text">
+          VELOCE <span>AUTO SPA</span>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        {% if session.get('user_id') %}
+          <div class="nav-user-badge">
+            <div class="user-avatar-circle">
+              {{ session.get('full_name', 'U')[0] }}
+            </div>
+            <div>
+              <div style="font-weight: 700; font-size: 0.9rem;">{{ session.get('full_name') }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">
+                {{ session.get('role') }}
+              </div>
+            </div>
+          </div>
+
+          {% if session.get('role') == 'admin' %}
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary btn-sm">
+              <i class="fa-solid fa-gauge-high"></i> Panel Admin
+            </a>
+          {% else %}
+            <a href="{{ url_for('client_dashboard') }}" class="btn btn-secondary btn-sm">
+              <i class="fa-solid fa-gem"></i> Mi Panel
+            </a>
+          {% endif %}
+
+          <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm" title="Cerrar Sesión">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
+          </a>
+        {% else %}
+          <button type="button" class="btn btn-register-cta" onclick="openModal('registerModal')">
+            <i class="fa-solid fa-gift"></i> Regístrate para obtener nuestros beneficios
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenedor de Mensajes Flash / Notificaciones Toast -->
+  <div class="alert-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert-toast {{ category }}">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              {% if category == 'success' %}
+                <i class="fa-solid fa-circle-check"></i>
+              {% elif category == 'error' %}
+                <i class="fa-solid fa-circle-exclamation"></i>
+              {% elif category == 'warning' %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              {% else %}
+                <i class="fa-solid fa-circle-info"></i>
+              {% endif %}
+              <span>{{ message }}</span>
+            </div>
+            <button class="alert-close">&times;</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Contenido Dinámico de la Página -->
+  <main style="flex: 1;">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Pie de Página -->
+  <footer class="footer">
+    <div class="container">
+      <p style="font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">
+        VELOCE AUTO SPA & DETAILING &copy; 2026 - Centro de Estética Automotriz y Fidelización
+      </p>
+      <p style="font-size: 0.82rem;">
+        Cuidado artesanal, insumos 100% biodegradables y tecnología de vanguardia para tu vehículo.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Scripts Globales -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Control Administrador | Veloce Auto Spa{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 30px 24px 60px;">
+
+  <!-- Encabezado del Panel de Administración -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
+    <div>
+      <span class="subheading" style="color: var(--blue-light); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.82rem;">
+        <i class="fa-solid fa-shield-halved"></i> Modo Super Administrador
+      </span>
+      <h1 style="font-size: 2.2rem; margin-top: 4px;">Gestión de Clientes y Fidelización</h1>
+      <p style="color: var(--text-muted);">Administra la base de datos de usuarios, actualiza credenciales y supervisa beneficios de cumpleaños.</p>
+    </div>
+
+    <div>
+      <button type="button" class="btn btn-primary" onclick="openModal('createUserModal')">
+        <i class="fa-solid fa-user-plus"></i> Registrar Nuevo Cliente
+      </button>
+    </div>
+  </div>
+
+  <!-- Tarjetas Métricas KPI -->
+  <div class="admin-metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon-box blue">
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <div class="metric-data">
+        <h4>{{ total_clients }}</h4>
+        <p>Clientes Registrados</p>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon-box gold">
+        <i class="fa-solid fa-cake-candles"></i>
+      </div>
+      <div class="metric-data">
+        <h4>{{ birthdays_this_month }}</h4>
+        <p>Cumpleañeros del Mes</p>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon-box cyan">
+        <i class="fa-solid fa-coins"></i>
+      </div>
+      <div class="metric-data">
+        <h4>{{ "{:,}".format(total_points) }}</h4>
+        <p>Puntos de Fidelidad Emitidos</p>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon-box emerald">
+        <i class="fa-solid fa-spray-can-sparkles"></i>
+      </div>
+      <div class="metric-data">
+        <h4>6</h4>
+        <p>Servicios Activos</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA DE GESTIÓN DE CLIENTES -->
+  <div class="table-card">
+    <div class="table-header-controls">
+      <div>
+        <h3 style="font-size: 1.3rem;">Listado Completo de Usuarios</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Puedes buscar por nombre, usuario, fecha de nacimiento o contacto.</p>
+      </div>
+
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="adminClientSearch" class="form-control" placeholder="Buscar cliente por nombre o usuario...">
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre Completo</th>
+            <th>Nombre de Usuario</th>
+            <th>Fecha de Nacimiento</th>
+            <th>Contacto</th>
+            <th>Rol</th>
+            <th>Puntos</th>
+            <th style="text-align: right;">Acciones de Edición</th>
+          </tr>
+        </thead>
+        <tbody id="clientsTableBody">
+          {% for u in users %}
+          <tr class="client-row" id="user-row-{{ u.id }}">
+            <td style="color: var(--text-dim); font-weight: 600;">#{{ u.id }}</td>
+            <td style="font-weight: 700; color: #ffffff;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                  {{ u.full_name[0] }}
+                </div>
+                <span>{{ u.full_name }}</span>
+              </div>
+            </td>
+            <td>
+              <span style="color: var(--blue-light); font-family: monospace; font-size: 0.95rem;">@{{ u.username }}</span>
+            </td>
+            <td>
+              <div class="birthday-indicator">
+                {% if u.birthday_info.is_birthday_month %}
+                  <span title="¡Cumple este mes!" style="cursor: help;"><i class="fa-solid fa-cake-candles bday-highlight"></i></span>
+                  <strong class="bday-highlight">{{ u.birthday_info.birth_formatted }}</strong>
+                  <span style="font-size: 0.75rem; background: rgba(245, 158, 11, 0.2); color: var(--gold-light); padding: 2px 6px; border-radius: 4px;">{{ u.birthday_info.age }} años</span>
+                {% else %}
+                  <span><i class="fa-regular fa-calendar" style="color: var(--text-dim); margin-right: 4px;"></i>{{ u.birthday_info.birth_formatted }}</span>
+                  <span style="font-size: 0.75rem; color: var(--text-dim);">({{ u.birthday_info.age }} años)</span>
+                {% endif %}
+              </div>
+            </td>
+            <td>
+              {% if u.phone %}
+                <span style="color: #cbd5e1;"><i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i> {{ u.phone }}</span>
+              {% else %}
+                <span style="color: var(--text-dim); font-style: italic;">Sin teléfono</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="role-tag {{ u.role }}">{{ u.role }}</span>
+            </td>
+            <td>
+              <span style="color: var(--cyan-accent); font-weight: 700;">{{ u.points }} pts</span>
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              <!-- Botón de Edición Total -->
+              <button type="button" 
+                      class="btn btn-secondary btn-sm btn-edit-user" 
+                      data-user-id="{{ u.id }}"
+                      title="Editar cualquier dato del cliente">
+                <i class="fa-solid fa-user-pen" style="color: var(--blue-light);"></i> Editar
+              </button>
+
+              <!-- Botón de Eliminar (Deshabilitado para sí mismo) -->
+              {% if u.id != session.get('user_id') %}
+              <button type="button" 
+                      class="btn btn-secondary btn-sm btn-delete-user" 
+                      data-user-id="{{ u.id }}"
+                      data-user-name="{{ u.full_name }}"
+                      title="Eliminar usuario"
+                      style="color: var(--rose-accent); margin-left: 6px;">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==============================================================
+     MODAL DE EDICIÓN TOTAL DE CLIENTES
+     Permite actualizar CUALQUIER dato:
+     - Nombre completo
+     - Nombre de usuario
+     - Contraseña (opcional para resetear)
+     - Fecha de nacimiento
+     - Teléfono de contacto
+     - Puntos
+     - Rol
+     ============================================================== -->
+<div id="editUserModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; background: rgba(37, 99, 235, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--blue-light);">
+          <i class="fa-solid fa-user-pen"></i>
+        </div>
+        <div>
+          <h3 class="modal-title" style="margin: 0; font-size: 1.25rem;">Edición Total de Cliente</h3>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Modifica cualquier parámetro o credencial del usuario</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close-btn" onclick="closeModal('editUserModal')">&times;</button>
+    </div>
+
+    <form id="editUserForm">
+      <input type="hidden" name="user_id" id="editUserId">
+
+      <div class="modal-body">
+        
+        <!-- Nombre Completo -->
+        <div class="form-group">
+          <label class="form-label" for="editFullName">Nombre Completo <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-id-card input-icon"></i>
+            <input type="text" id="editFullName" name="full_name" class="form-control" required>
+          </div>
+        </div>
+
+        <!-- Nombre de Usuario -->
+        <div class="form-group">
+          <label class="form-label" for="editUsername">Nombre de Usuario (@username) <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-at input-icon"></i>
+            <input type="text" id="editUsername" name="username" class="form-control" required>
+          </div>
+        </div>
+
+        <!-- Fecha de Nacimiento -->
+        <div class="form-group">
+          <label class="form-label" for="editBirthDate">Fecha de Nacimiento <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-calendar-day input-icon"></i>
+            <input type="date" id="editBirthDate" name="birth_date" class="form-control" required>
+          </div>
+        </div>
+
+        <!-- Teléfono de Contacto -->
+        <div class="form-group">
+          <label class="form-label" for="editPhone">Teléfono / WhatsApp de Contacto</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-phone input-icon"></i>
+            <input type="text" id="editPhone" name="phone" class="form-control" placeholder="+54 9 11 ...">
+          </div>
+        </div>
+
+        <!-- Restablecer / Modificar Contraseña -->
+        <div class="form-group">
+          <label class="form-label" for="editPassword">
+            Nueva Contraseña 
+            <small style="color: var(--text-dim); font-weight: normal;">(Dejar en blanco para conservar la actual)</small>
+          </label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="editPassword" name="password" class="form-control" placeholder="Escribe nueva clave si deseas cambiarla">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <!-- Puntos de Fidelización -->
+          <div class="form-group">
+            <label class="form-label" for="editPoints">Puntos Acumulados</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-coins input-icon"></i>
+              <input type="number" id="editPoints" name="points" class="form-control" min="0">
+            </div>
+          </div>
+
+          <!-- Rol en el Sistema -->
+          <div class="form-group">
+            <label class="form-label" for="editRole">Rol de Acceso</label>
+            <select id="editRole" name="role" class="form-control" style="padding-left: 14px;">
+              <option value="cliente">Cliente (Regular)</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('editUserModal')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar Modificaciones
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==============================================================
+     MODAL PARA REGISTRAR NUEVO CLIENTE DESDE ADMIN
+     ============================================================== -->
+<div id="createUserModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--emerald-accent);">
+          <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <div>
+          <h3 class="modal-title" style="margin: 0; font-size: 1.25rem;">Registrar Nuevo Cliente</h3>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Alta rápida de cliente presencial en el lavadero</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close-btn" onclick="closeModal('createUserModal')">&times;</button>
+    </div>
+
+    <form id="createUserForm">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="newFullName">Nombre Completo <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-id-card input-icon"></i>
+            <input type="text" id="newFullName" name="full_name" class="form-control" placeholder="Ej. Martin Gómez" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="newUsername">Nombre de Usuario <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-at input-icon"></i>
+            <input type="text" id="newUsername" name="username" class="form-control" placeholder="Ej. marting" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="newPassword">Contraseña Inicial <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="newPassword" name="password" class="form-control" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="newBirthDate">Fecha de Nacimiento <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-calendar-day input-icon"></i>
+            <input type="date" id="newBirthDate" name="birth_date" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="newPhone">Teléfono / WhatsApp</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-phone input-icon"></i>
+            <input type="text" id="newPhone" name="phone" class="form-control" placeholder="+54 9 11 ...">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="newPoints">Puntos Iniciales</label>
+            <input type="number" id="newPoints" name="points" value="250" class="form-control" style="padding-left: 14px;">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="newRole">Rol</label>
+            <select id="newRole" name="role" class="form-control" style="padding-left: 14px;">
+              <option value="cliente" selected>Cliente</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('createUserModal')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-user-check"></i> Dar de Alta
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==============================================================
+     MODAL DE CONFIRMACIÓN DE ELIMINACIÓN
+     ============================================================== -->
+<div id="deleteUserModal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 440px;">
+    <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+      <h3 class="modal-title" style="color: var(--rose-accent);">¿Eliminar Cliente?</h3>
+      <button type="button" class="modal-close-btn" onclick="closeModal('deleteUserModal')">&times;</button>
+    </div>
+    <div class="modal-body" style="padding-top: 14px;">
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        ¿Estás seguro de que deseas eliminar a <strong id="deleteUserNameSpan" style="color: white;"></strong>? Esta acción borrará sus puntos de fidelización y datos de acceso de forma permanente.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeModal('deleteUserModal')">Cancelar</button>
+      <button type="button" id="btnConfirmDelete" class="btn btn-danger">
+        <i class="fa-solid fa-trash-can"></i> Sí, eliminar permanentemente
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

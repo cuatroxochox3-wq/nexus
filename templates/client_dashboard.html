@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Cliente | Veloce Auto Spa{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-bottom: 60px;">
+
+  <!-- Tarjeta de Bienvenida y Estado del Cliente -->
+  <div class="dashboard-header-card">
+    <div class="client-welcome-row">
+      <div class="client-info">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+          <span class="tier-badge" style="background: {{ tier.color }};">
+            <i class="fa-solid fa-crown"></i> {{ tier.badge }}
+          </span>
+          <span style="font-size: 0.85rem; color: var(--cyan-accent);">
+            <i class="fa-solid fa-calendar-check"></i> Miembro desde {{ user.created_at[:10] }}
+          </span>
+        </div>
+        <h2>¡Bienvenido a tu Espacio VIP, {{ user.full_name }}!</h2>
+        <p>Disfruta de la mejor tecnología en cuidado automotriz y canjea tus puntos por servicios exclusivos.</p>
+      </div>
+
+      <div class="loyalty-summary-card">
+        <div style="width: 48px; height: 48px; background: rgba(6, 182, 212, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--cyan-accent); font-size: 1.5rem;">
+          <i class="fa-solid fa-coins"></i>
+        </div>
+        <div class="points-pill">
+          <div class="points-number">{{ user.points }}</div>
+          <div style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">
+            Puntos Disponibles
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       SECCIÓN DE BENEFICIOS, ATRACTIVOS Y FIDELIZACIÓN POR CUMPLEAÑOS
+       ============================================================== -->
+  
+  <!-- Banner Dinámico de Cumpleaños -->
+  {% if birthday_info.is_birthday_month %}
+    <div class="birthday-banner">
+      <div class="birthday-icon-box">
+        <i class="fa-solid fa-cake-candles"></i>
+      </div>
+      <div class="birthday-content">
+        <h3>🎉 ¡FESTEJAMOS EL MES DE TU CUMPLEAÑOS!</h3>
+        <p>
+          Porque naciste un <strong>{{ birthday_info.birth_formatted }}</strong>, durante todo este mes tienes un 
+          <strong>Lavado Exterior 100% de Cortesía</strong> y un <strong>25% de Descuento</strong> en cualquier servicio de Encerado o Detailing. ¡Presenta tu documento al visitarnos!
+        </p>
+      </div>
+    </div>
+  {% else %}
+    <div style="background: rgba(30, 41, 59, 0.6); border: 1px dashed rgba(59, 130, 246, 0.35); border-radius: 14px; padding: 20px 24px; margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: gap; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 44px; height: 44px; background: rgba(59, 130, 246, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--blue-light); font-size: 1.2rem;">
+          <i class="fa-solid fa-gift"></i>
+        </div>
+        <div>
+          <div style="font-weight: 700; color: #ffffff;">Tu fecha de nacimiento registrada: {{ birthday_info.birth_formatted }}</div>
+          <div style="font-size: 0.88rem; color: var(--text-muted);">
+            Faltan <strong>{{ birthday_info.days_until }} días</strong> para tu próximo cumpleaños. Al llegar tu mes, se habilitará automáticamente tu regalo de cortesía.
+          </div>
+        </div>
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--cyan-accent); font-weight: 600; white-space: nowrap;">
+        <i class="fa-solid fa-hourglass-half"></i> Cuenta Regresiva Activa
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Cuadrícula de Atractivos y Beneficios Exclusivos -->
+  <div class="section-header" style="text-align: left; margin-bottom: 24px;">
+    <span class="subheading">Programa de Fidelización</span>
+    <h2 style="font-size: 1.8rem;">Tus Beneficios Activos</h2>
+  </div>
+
+  <div class="benefits-grid">
+    <!-- Beneficio 1: Descuento de Nivel -->
+    <div class="benefit-card">
+      <div class="benefit-icon">
+        <i class="fa-solid fa-percent"></i>
+      </div>
+      <h4>Descuento Permanente {{ tier.discount }}% OFF</h4>
+      <p>Por pertenecer a la categoría <strong>{{ tier.name }}</strong>, obtienes automáticamente rebaja en todos los tratamientos de cabina y chasis.</p>
+    </div>
+
+    <!-- Beneficio 2: Doble Puntaje -->
+    <div class="benefit-card">
+      <div class="benefit-icon" style="color: var(--cyan-accent); background: rgba(6, 182, 212, 0.15);">
+        <i class="fa-solid fa-bolt"></i>
+      </div>
+      <h4>Martes de Doble Puntaje</h4>
+      <p>Todos los lavados realizados los días martes acreditan 2x en puntos acumulables para canjear por productos o sellados cerámicos.</p>
+    </div>
+
+    <!-- Beneficio 3: Café & Sala VIP -->
+    <div class="benefit-card">
+      <div class="benefit-icon" style="color: var(--gold-light); background: rgba(245, 158, 11, 0.15);">
+        <i class="fa-solid fa-mug-hot"></i>
+      </div>
+      <h4>Acceso a Coffee Lounge VIP</h4>
+      <p>Disfruta de café de especialidad, WiFi de alta velocidad y ambiente climatizado mientras nuestro equipo mima tu auto.</p>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       CATÁLOGO VISUAL DE SERVICIOS
+       ============================================================== -->
+  <div class="section-header" style="text-align: left; margin-bottom: 24px; margin-top: 50px;">
+    <span class="subheading">Servicios Profesionales de Lavadero</span>
+    <h2 style="font-size: 1.8rem;">Catálogo de Servicios Disponibles</h2>
+    <p>Selecciona tu tratamiento preferido y reserva tu turno sin demoras.</p>
+  </div>
+
+  <div class="services-grid">
+    {% for s in services %}
+    <div class="service-card">
+      {% if s.badge %}
+        <div class="service-badge">{{ s.badge }}</div>
+      {% endif %}
+      <div class="service-category">{{ s.category }}</div>
+      <h3 class="service-title">{{ s.name }}</h3>
+      <div class="service-price-row">
+        <span class="service-price">${{ "{:,.0f}".format(s.price) }}</span>
+        <span class="service-duration"><i class="fa-regular fa-clock"></i> {{ s.duration }}</span>
+      </div>
+      <p class="service-desc">{{ s.description }}</p>
+
+      <ul class="service-features-list">
+        {% for feat in s.features.split('|') %}
+          <li><i class="fa-solid fa-circle-check"></i> {{ feat }}</li>
+        {% endfor %}
+      </ul>
+
+      <button type="button" 
+              class="btn btn-primary btn-book-service" 
+              data-service-id="{{ s.id }}"
+              data-service-name="{{ s.name }}"
+              data-service-price="{{ s.price }}">
+        <i class="fa-solid fa-calendar-check"></i> Agendar Turno (+50 pts)
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ==============================================================
+       SECCIÓN DE PRODUCTOS E INSUMOS UTILIZADOS
+       ============================================================== -->
+  <div class="products-section" style="margin-top: 40px;">
+    <div class="section-header">
+      <span class="subheading">Garantía y Transparencia</span>
+      <h2>Insumos y Cosmética Automotriz Utilizada</h2>
+      <p>Nos enorgullece utilizar fórmulas con certificación ecológica que protegen tanto la laca de tu vehículo como el medio ambiente.</p>
+    </div>
+
+    <div class="products-grid">
+      {% for p in products %}
+      <div class="product-card">
+        <div class="product-brand">{{ p.brand }}</div>
+        <h3 class="product-name">{{ p.name }}</h3>
+        <p class="product-desc">{{ p.description }}</p>
+        <span class="product-tag">
+          <i class="fa-solid fa-leaf"></i> {{ p.badge }}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Historial de Turnos Solicitados -->
+  {% if appointments %}
+  <div style="margin-top: 50px;">
+    <div class="section-header" style="text-align: left; margin-bottom: 20px;">
+      <span class="subheading">Seguimiento</span>
+      <h3 style="font-size: 1.5rem;">Mis Turnos Agendados</h3>
+    </div>
+    <div class="table-card" style="padding: 20px;">
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Servicio</th>
+              <th>Vehículo</th>
+              <th>Fecha y Hora</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for appt in appointments %}
+            <tr>
+              <td style="font-weight: 700; color: #ffffff;">{{ appt.service_name }}</td>
+              <td>{{ appt.vehicle_model }} ({{ appt.vehicle_plate }})</td>
+              <td>{{ appt.date_time }}</td>
+              <td>
+                <span class="role-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
+                  <i class="fa-solid fa-check"></i> {{ appt.status }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Modal para Agendar Turno -->
+<div id="bookingModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; background: rgba(37, 99, 235, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--blue-light);">
+          <i class="fa-solid fa-calendar-plus"></i>
+        </div>
+        <div>
+          <h3 class="modal-title" style="margin: 0; font-size: 1.2rem;">Agendar Tratamiento</h3>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);" id="bookServiceName">Cargando...</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close-btn" onclick="closeModal('bookingModal')">&times;</button>
+    </div>
+
+    <form id="bookingForm">
+      <input type="hidden" name="service_id" id="bookServiceId">
+      
+      <div class="modal-body">
+        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: var(--text-muted); font-size: 0.9rem;">Precio Estimado:</span>
+          <span id="bookServicePrice" style="font-size: 1.3rem; font-weight: 800; color: var(--cyan-accent);">$0</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="bookDateTime">Fecha y Hora Estimada <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-regular fa-clock input-icon"></i>
+            <input type="datetime-local" id="bookDateTime" name="date_time" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="bookVehicleModel">Modelo del Vehículo <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-car-side input-icon"></i>
+            <input type="text" id="bookVehicleModel" name="vehicle_model" class="form-control" placeholder="Ej. Toyota Corolla / VW Golf" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="bookVehiclePlate">Patente / Matrícula <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-barcode input-icon"></i>
+            <input type="text" id="bookVehiclePlate" name="vehicle_plate" class="form-control" placeholder="Ej. AB 123 CD" required style="text-transform: uppercase;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="bookNotes">Indicaciones Especiales (Opcional)</label>
+          <textarea id="bookNotes" name="notes" class="form-control" rows="2" style="padding-left: 16px;" placeholder="¿Cuidado especial con pintura mate, interior con mascotas, etc.?"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('bookingModal')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-calendar-check"></i> Confirmar Turno (+50 Puntos)
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
